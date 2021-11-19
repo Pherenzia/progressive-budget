@@ -6,10 +6,10 @@ const FILES_TO_CACHE = [
   "/db.js",
   "/index.js",
   "/manifest.json",
-  "/style.css"
+  "/styles.css"
 ];
 
-const CACHE_NAME = "static-cache-v2";
+const CACHE_NAME = "static-cache-v1";
 const DATA_CACHE_NAME = "data-cache-v1";
 
 // install
@@ -17,7 +17,8 @@ self.addEventListener("install", function (evt) {
   evt.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Your files were pre-cached successfully!");
-      return cache.addAll(FILES_TO_CACHE);
+      console.log(cache.addAll(FILES_TO_CACHE))
+      cache.addAll(FILES_TO_CACHE);
     })
   );
 
@@ -49,8 +50,6 @@ self.addEventListener("fetch", function (evt) {
   // #1: Handle requests for frequently changing data by checking if the route
   // contains "/api".
   if (evt.request.url.includes("/api/")) {
-    // Implement Network falling back to the cache pattern. (See
-    // https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#network_falling_back_to_the_cache)
     evt.respondWith(
       caches
         .open(DATA_CACHE_NAME)
@@ -59,6 +58,7 @@ self.addEventListener("fetch", function (evt) {
             .then((response) => {
               // If the response was good, clone it and store it in the cache.
               if (response.status === 200) {
+                console.log(evt.request.url)
                 cache.put(evt.request.url, response.clone());
               }
 
